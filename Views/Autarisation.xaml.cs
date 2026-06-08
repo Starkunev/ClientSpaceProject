@@ -9,7 +9,7 @@ namespace WpfApp1.Views
 {
     public partial class Autarisation : Window
     {
-        private string _serverIp = "192.168.0.116";
+        private string _serverIp = "10.10.5.1";
         private int _port = 7000;
         private readonly ClassForServerWork _serverClient = new ClassForServerWork();
 

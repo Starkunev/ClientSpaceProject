@@ -8,7 +8,7 @@ namespace WpfApp1
 {
     public partial class Registration : Window
     {
-        private string _serverIp = "192.168.0.116";
+        private string _serverIp = "10.10.5.1";
         private int _port = 7000;
 
         // -------------------Свойства для возврата данных в форму входа----------
