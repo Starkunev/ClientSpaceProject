@@ -4,51 +4,51 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-
+using WpfApp1.Models;
 namespace WpfApp1 
 {
-    public class Packet
-    {
-        public PacketType Type { get; set; }
-        public JsonElement Data { get; set; }
-    }
+    //public class Packet
+    //{
+    //    public PacketType Type { get; set; }
+    //    public JsonElement Data { get; set; }
+    //}
 
-    public class RegisterRequest
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Login { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-    }
+    //public class RegisterRequest
+    //{
+    //    public string Name { get; set; } = string.Empty;
+    //    public string Login { get; set; } = string.Empty;
+    //    public string Password { get; set; } = string.Empty;
+    //}
 
 
-    public class BaseResponse
-    {
-        public bool Success { get; set; }
-        public string Message { get; set; } = string.Empty;
-    }
+    //public class BaseResponse
+    //{
+    //    public bool Success { get; set; }
+    //    public string Message { get; set; } = string.Empty;
+    //}
 
-    public class LoginRequest
-    {
-        public string Login { get; set; }
-        public string Password { get; set; }
-    }
+    //public class LoginRequest
+    //{
+    //    public string Login { get; set; }
+    //    public string Password { get; set; }
+    //}
 
-    public class AuthResponse
-    {
-        public bool Success { get; set; }
-        public string Message { get; set; }
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public bool IsOnline { get; set; }
-    }
+    //public class AuthResponse
+    //{
+    //    public bool Success { get; set; }
+    //    public string Message { get; set; }
+    //    public int Id { get; set; }
+    //    public string Name { get; set; }
+    //    public bool IsOnline { get; set; }
+    //}
 
-    public enum PacketType
-    {
-        Registration,
-        Login,
-        SendMessage,
-        GetAllMessages
-    }
+    //public enum PacketType
+    //{
+    //    Registration,
+    //    Login,
+    //    SendMessage,
+    //    GetAllMessages
+    //}
 
     public class ClassForServerWork : IDisposable
     {
