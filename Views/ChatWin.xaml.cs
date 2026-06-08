@@ -19,11 +19,11 @@ namespace WpfApp1
     /// </summary>
     public partial class ChatWin : Window
     {
-        private readonly ClassForServerWork _serverClient;
+        private readonly ChatClient _serverClient;
         private readonly int _userId;
         private readonly string _userName;
         private  bool _isOnline;
-        public ChatWin(ClassForServerWork serverClient, int userId, string userName)
+        public ChatWin(ChatClient serverClient, int userId, string userName)
         {
             InitializeComponent();
             _serverClient = serverClient;

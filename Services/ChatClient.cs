@@ -50,7 +50,7 @@ namespace WpfApp1
     //    GetAllMessages
     //}
 
-    public class ClassForServerWork : IDisposable
+    public class ChatClient : IDisposable
     {
         private TcpClient _client;
         private NetworkStream _stream;

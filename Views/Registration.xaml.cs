@@ -44,7 +44,7 @@ namespace WpfApp1
 
             try
             {
-                using (var serverClient = new ClassForServerWork())
+                using (var serverClient = new ChatClient())
                 {
                    
                     lblStatus.Text = "Подключение к серверу...";

@@ -92,6 +92,8 @@
     <Compile Include="Models\Packet.cs" />
     <Compile Include="Models\PacketType.cs" />
     <Compile Include="Models\RegisterRequest.cs" />
+    <Compile Include="ViewModels\AuthorizationVeiwModel.cs" />
+    <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="Views\Autarisation.xaml.cs">
       <DependentUpon>Autarisation.xaml</DependentUpon>
     </Compile>
@@ -117,7 +119,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Services\ClassForClientWork.cs" />
+    <Compile Include="Services\ChatClient.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

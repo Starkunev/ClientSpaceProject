@@ -11,7 +11,7 @@ namespace WpfApp1.Views
     {
         private string _serverIp = "10.10.5.9";
         private int _port = 8000;
-        private readonly ClassForServerWork _serverClient = new ClassForServerWork();
+        private readonly ChatClient _serverClient = new ChatClient();
 
 
         public Autarisation()
@@ -64,7 +64,7 @@ namespace WpfApp1.Views
 
             try
             {
-                var serverClient = new ClassForServerWork();
+                var serverClient = new ChatClient();
                 {
                     lblStatus.Text = "Подключение к серверу...";
                     bool connected = await _serverClient.ConnectAsync(_serverIp, _port);
