@@ -8,8 +8,8 @@ namespace WpfApp1
 {
     public partial class Registration : Window
     {
-        private string _serverIp = "10.10.5.1";
-        private int _port = 7000;
+        private string _serverIp = "10.10.5.9";
+        private int _port = 8000;
 
         // -------------------Свойства для возврата данных в форму входа----------
         public string RegisteredLogin => txtLogin.Text.Trim();
