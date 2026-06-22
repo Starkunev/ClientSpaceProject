@@ -86,19 +86,28 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\ByteArrayToImageConverter.cs" />
     <Compile Include="Models\AuthResponse.cs" />
     <Compile Include="Models\BaseResponse.cs" />
+    <Compile Include="Models\ClientResponse.cs" />
+    <Compile Include="Models\ClientStatusResponse.cs" />
     <Compile Include="Models\LoginRequest.cs" />
+    <Compile Include="Models\MessageModel.cs" />
+    <Compile Include="Models\MessageRequest.cs" />
+    <Compile Include="Models\MessageResponse.cs" />
     <Compile Include="Models\Packet.cs" />
     <Compile Include="Models\PacketType.cs" />
     <Compile Include="Models\RegisterRequest.cs" />
-    <Compile Include="ViewModels\AuthorizationVeiwModel.cs" />
-    <Compile Include="ViewModels\BaseViewModel.cs" />
+    <Compile Include="Models\UpdateClientRequest.cs" />
+    <Compile Include="Models\UserModel.cs" />
     <Compile Include="Views\Autarisation.xaml.cs">
       <DependentUpon>Autarisation.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\ChatWin.xaml.cs">
-      <DependentUpon>ChatWin.xaml</DependentUpon>
+    <Compile Include="Views\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ProfileWindow.xaml.cs">
+      <DependentUpon>ProfileWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Registration.xaml.cs">
       <DependentUpon>Registration.xaml</DependentUpon>
@@ -107,23 +116,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\ChatWin.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Services\ChatClient.cs" />
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
+    <Page Include="Views\MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\ProfileWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\Registration.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

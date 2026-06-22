@@ -1,4 +1,402 @@
 ﻿
+//using System;
+//using System.Threading.Tasks;
+//using System.Windows;
+//using System.Windows.Controls;
+//using System.Windows.Media;
+
+//namespace WpfApp1.Views
+//{
+//    public partial class Autarisation : Window
+//    {
+//        private string _serverIp = "10.10.5.9";
+//        private int _port = 8000;
+//        private readonly ChatClient _serverClient = new ChatClient();
+
+
+//        public Autarisation()
+//        {
+//            InitializeComponent();
+//            Loaded += Autarisation_Loaded;
+//        }
+
+//        private void Autarisation_Loaded(object sender, RoutedEventArgs e)
+//        {
+//            txtServerIp.Text = _serverIp;
+//            txtPort.Text = _port.ToString();
+//            txtLogin.Focus();
+//        }
+
+//        private void BtnRegister_Click(object sender, RoutedEventArgs e)
+//        {
+//            _serverIp = txtServerIp.Text.Trim();
+//            int.TryParse(txtPort.Text, out _port);
+
+//            var registrationForm = new Registration(_serverIp, _port);
+//            if (registrationForm.ShowDialog() == true)
+//            {
+//                txtLogin.Text = registrationForm.RegisteredLogin;
+//                txtPassword.Password = registrationForm.RegisteredPassword;
+
+//                if (MessageBox.Show("Регистрация прошла успешно! Выполнить вход?",
+//                    "Успех", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+//                {
+//                    BtnLogin_Click(sender, e);
+//                }
+//            }
+//        }
+
+//        private async void BtnLogin_Click(object sender, RoutedEventArgs e)
+//        {
+//            if (!ValidateFields())
+//                return;
+
+//            _serverIp = txtServerIp.Text.Trim();
+//            if (!int.TryParse(txtPort.Text, out _port))
+//            {
+//                ShowError("Неверный номер порта");
+//                return;
+//            }
+
+//            btnLogin.IsEnabled = false;
+//            btnLogin.Content = "Вход...";
+//            lblStatus.Text = "";
+
+//            try
+//            {
+//                var serverClient = new ChatClient();
+//                {
+//                    lblStatus.Text = "Подключение к серверу...";
+//                    bool connected = await _serverClient.ConnectAsync(_serverIp, _port);
+//                    //var result = await _serverClient.LoginAsync(txtLogin.Text.Trim(), txtPassword.Password);
+//                    if (!connected)
+//                    {
+//                        ShowError($"Не удалось подключиться к {_serverIp}:{_port}");
+//                        return;
+//                    }
+
+//                    lblStatus.Text = "Авторизация...";
+//                    var result = await _serverClient.LoginAsync(txtLogin.Text.Trim(), txtPassword.Password);
+
+//                    if (result.Success)
+//                    {
+//                        lblStatus.Text = $"Добро пожаловать, {result.Name}!";
+//                        lblStatus.Foreground = new SolidColorBrush(Colors.Green);
+
+//                        MessageBox.Show($"Добро пожаловать в чат, {result.Name}!",
+//                            "Успешный вход", MessageBoxButton.OK, MessageBoxImage.Information);
+
+//                        var chatWindow = new ChatWin(_serverClient,result.Id,result.Name);
+//                        chatWindow.Show();
+//                        this.Close();
+//                    }
+//                    else
+//                    {
+//                        string errorMessage = result?.Message ?? "Неизвестная ошибка";
+//                        ShowError(errorMessage);
+
+//                        if (!string.IsNullOrEmpty(errorMessage))
+//                        {
+//                            if (errorMessage.IndexOf("логин", StringComparison.OrdinalIgnoreCase) >= 0)
+//                                HighlightError(txtLogin);
+//                            else if (errorMessage.IndexOf("пароль", StringComparison.OrdinalIgnoreCase) >= 0)
+//                                HighlightError(txtPassword);
+//                        }
+//                    }
+//                }
+//            }
+//            catch (Exception ex)
+//            {
+//                ShowError($"Ошибка: {ex.Message}");
+//                MessageBox.Show(ex.Message, "Критическая ошибка",
+//                    MessageBoxButton.OK, MessageBoxImage.Error);
+//            }
+//            finally
+//            {
+//                btnLogin.IsEnabled = true;
+//                btnLogin.Content = "Вход";
+//            }
+//        }
+
+//        private bool ValidateFields()
+//        {
+//            if (string.IsNullOrWhiteSpace(txtLogin.Text))
+//            {
+//                ShowError("Введите логин");
+//                HighlightError(txtLogin);
+//                return false;
+//            }
+
+//            if (string.IsNullOrWhiteSpace(txtPassword.Password))
+//            {
+//                ShowError("Введите пароль");
+//                HighlightError(txtPassword);
+//                return false;
+//            }
+
+//            return true;
+//        }
+
+//        private void ShowError(string message)
+//        {
+//            lblStatus.Text = message ?? "Неизвестная ошибка";
+//            lblStatus.Foreground = new SolidColorBrush(Colors.Red);
+//        }
+
+//        private void HighlightError(Control control)
+//        {
+//            control.Background = new SolidColorBrush(Colors.LightPink);
+
+//            var timer = new System.Windows.Threading.DispatcherTimer
+//            {
+//                Interval = TimeSpan.FromSeconds(2)
+//            };
+//            timer.Tick += (s, e) =>
+//            {
+//                control.Background = SystemColors.WindowBrush;
+//                timer.Stop();
+//            };
+//            timer.Start();
+//        }
+//    }
+//}
+
+//using System;
+//using System.Windows;
+//using System.Windows.Media;
+//using TcpChatClient.Services;
+//using WpfApp1.Views;
+
+//namespace WpfApp1.Views
+//{
+//    public partial class Autarisation : Window
+//    {
+//        private TcpClientService _serverClient;
+//        private string _serverIp;
+//        private int _port;
+
+//        public Autarisation()
+//        {
+//            InitializeComponent();
+//        }
+
+//        private bool ValidateFields()
+//        {
+//            if (string.IsNullOrWhiteSpace(txtLogin.Text))
+//            {
+//                ShowError("Введите логин");
+//                return false;
+//            }
+
+//            if (string.IsNullOrWhiteSpace(txtPassword.Password))
+//            {
+//                ShowError("Введите пароль");
+//                return false;
+//            }
+
+//            return true;
+//        }
+
+//        private void ShowError(string message)
+//        {
+//            lblStatus.Text = message;
+//            lblStatus.Foreground = new SolidColorBrush(Colors.Red);
+//        }
+
+//        private async void BtnLogin_Click(object sender, RoutedEventArgs e)
+//        {
+//            if (!ValidateFields())
+//                return;
+
+//            _serverIp = txtServerIp.Text.Trim();
+//            if (!int.TryParse(txtPort.Text, out _port))
+//            {
+//                ShowError("Неверный номер порта");
+//                return;
+//            }
+
+//            btnLogin.IsEnabled = false;
+//            btnLogin.Content = "Вход...";
+//            lblStatus.Text = "";
+
+//            try
+//            {
+//                _serverClient = new TcpClientService();
+//                lblStatus.Text = "Подключение к серверу...";
+//                lblStatus.Foreground = new SolidColorBrush(Colors.Blue);
+
+//                bool connected = _serverClient.Connect(_serverIp, _port);
+
+//                if (!connected)
+//                {
+//                    ShowError($"Не удалось подключиться к {_serverIp}:{_port}");
+//                    btnLogin.IsEnabled = true;
+//                    btnLogin.Content = "Войти";
+//                    return;
+//                }
+
+//                lblStatus.Text = "Авторизация...";
+
+//                string credentials = $"{txtLogin.Text.Trim()}:{txtPassword.Password}";
+//                await _serverClient.SendMessageAsync(credentials);
+
+//                string response = await _serverClient.ReceiveMessageAsync();
+
+//                if (response == "OK" || response.StartsWith("SUCCESS"))
+//                {
+//                    lblStatus.Text = $"Добро пожаловать, {txtLogin.Text}!";
+//                    lblStatus.Foreground = new SolidColorBrush(Colors.Green);
+
+//                    MessageBox.Show($"Добро пожаловать в чат, {txtLogin.Text}!",
+//                        "Успешный вход", MessageBoxButton.OK, MessageBoxImage.Information);
+
+//                    var chatWindow = new MainWindow(_serverClient, txtLogin.Text.Trim());
+//                    chatWindow.Show();
+//                    this.Close();
+//                }
+//                else
+//                {
+//                    ShowError(response == "ERROR" ? "Неверный логин или пароль" : response);
+//                    _serverClient.Disconnect();
+
+//                    btnLogin.IsEnabled = true;
+//                    btnLogin.Content = "Войти";
+//                }
+//            }
+//            catch (Exception ex)
+//            {
+//                ShowError($"Ошибка: {ex.Message}");
+//                btnLogin.IsEnabled = true;
+//                btnLogin.Content = "Войти";
+//            }
+//        }
+
+//        private void BtnRegister_Click(object sender, RoutedEventArgs e)
+//        {
+//            var registrationWindow = new Registration();
+//            registrationWindow.ShowDialog();
+//        }
+//    }
+//}
+
+//using System;
+//using System.Windows;
+//using System.Windows.Media;
+//using TcpChatClient.Services;
+//using WpfApp1.Views;
+
+//namespace WpfApp1.Views
+//{
+//    public partial class Autarisation : Window
+//    {
+//        private TcpClientService _serverClient;
+//        private string _serverIp;
+//        private int _port;
+
+//        public Autarisation()
+//        {
+//            InitializeComponent();
+//        }
+
+//        private bool ValidateFields()
+//        {
+//            if (string.IsNullOrWhiteSpace(txtLogin.Text))
+//            {
+//                ShowError("Введите логин");
+//                return false;
+//            }
+
+//            if (string.IsNullOrWhiteSpace(txtPassword.Password))
+//            {
+//                ShowError("Введите пароль");
+//                return false;
+//            }
+
+//            return true;
+//        }
+
+//        private void ShowError(string message)
+//        {
+//            lblStatus.Text = message;
+//            lblStatus.Foreground = new SolidColorBrush(Colors.Red);
+//        }
+
+//        private async void BtnLogin_Click(object sender, RoutedEventArgs e)
+//        {
+//            if (!ValidateFields())
+//                return;
+
+//            _serverIp = txtServerIp.Text.Trim();
+//            if (!int.TryParse(txtPort.Text, out _port))
+//            {
+//                ShowError("Неверный номер порта");
+//                return;
+//            }
+
+//            btnLogin.IsEnabled = false;
+//            btnLogin.Content = "Вход...";
+//            lblStatus.Text = "";
+
+//            try
+//            {
+//                _serverClient = new TcpClientService();
+//                lblStatus.Text = "Подключение к серверу...";
+//                lblStatus.Foreground = new SolidColorBrush(Colors.Blue);
+
+//                bool connected = _serverClient.Connect(_serverIp, _port);
+
+//                if (!connected)
+//                {
+//                    ShowError($"Не удалось подключиться к {_serverIp}:{_port}");
+//                    btnLogin.IsEnabled = true;
+//                    btnLogin.Content = "Войти";
+//                    return;
+//                }
+
+//                lblStatus.Text = "Авторизация...";
+
+//                string credentials = $"{txtLogin.Text.Trim()}:{txtPassword.Password}";
+//                await _serverClient.SendMessageAsync(credentials);
+
+//                string response = await _serverClient.ReceiveMessageAsync();
+
+//                if (response == "OK" || response.StartsWith("SUCCESS"))
+//                {
+//                    lblStatus.Text = $"Добро пожаловать, {txtLogin.Text}!";
+//                    lblStatus.Foreground = new SolidColorBrush(Colors.Green);
+
+//                    MessageBox.Show($"Добро пожаловать в чат, {txtLogin.Text}!",
+//                        "Успешный вход", MessageBoxButton.OK, MessageBoxImage.Information);
+
+//                    // ЕДИНСТВЕННОЕ ИЗМЕНЕНИЕ - открываем MainWindow вместо ChatWin
+//                    var chatWindow = new MainWindow(_serverClient, txtLogin.Text.Trim());
+//                    chatWindow.Show();
+//                    this.Close();
+//                }
+//                else
+//                {
+//                    ShowError(response == "ERROR" ? "Неверный логин или пароль" : response);
+//                    _serverClient.Disconnect();
+
+//                    btnLogin.IsEnabled = true;
+//                    btnLogin.Content = "Войти";
+//                }
+//            }
+//            catch (Exception ex)
+//            {
+//                ShowError($"Ошибка: {ex.Message}");
+//                btnLogin.IsEnabled = true;
+//                btnLogin.Content = "Войти";
+//            }
+//        }
+
+//        private void BtnRegister_Click(object sender, RoutedEventArgs e)
+//        {
+//            var registrationWindow = new Registration();
+//            registrationWindow.ShowDialog();
+//        }
+//    }
+//}
 using System;
 using System.Threading.Tasks;
 using System.Windows;
@@ -9,10 +407,9 @@ namespace WpfApp1.Views
 {
     public partial class Autarisation : Window
     {
-        private string _serverIp = "10.10.5.9";
+        private string _serverIp = "10.10.5.1";
         private int _port = 8000;
         private readonly ChatClient _serverClient = new ChatClient();
-
 
         public Autarisation()
         {
@@ -68,7 +465,7 @@ namespace WpfApp1.Views
                 {
                     lblStatus.Text = "Подключение к серверу...";
                     bool connected = await _serverClient.ConnectAsync(_serverIp, _port);
-                    //var result = await _serverClient.LoginAsync(txtLogin.Text.Trim(), txtPassword.Password);
+
                     if (!connected)
                     {
                         ShowError($"Не удалось подключиться к {_serverIp}:{_port}");
@@ -86,7 +483,8 @@ namespace WpfApp1.Views
                         MessageBox.Show($"Добро пожаловать в чат, {result.Name}!",
                             "Успешный вход", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                        var chatWindow = new ChatWin(_serverClient,result.Id,result.Name);
+                        // ТОЛЬКО ЭТА СТРОКА ИЗМЕНЕНА - открываем MainWindow вместо ChatWin
+                        var chatWindow = new MainWindow(_serverClient,result.Id,result.Name);
                         chatWindow.Show();
                         this.Close();
                     }
