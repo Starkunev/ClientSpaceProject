@@ -4207,7 +4207,7 @@ namespace WpfApp1.Views
                 Time = message.CreatedAt.ToLocalTime().ToString("HH:mm"),
                 IsMine = message.FromClientId == _userId,
                 Sender = sender,
-                SenderAvatar = avatarBase64
+                SenderAvatarBytes = sender?.AvatarBytes
             };
 
             Messages.Add(messageModel);
@@ -4238,7 +4238,7 @@ namespace WpfApp1.Views
                     Time = msg.CreatedAt.ToLocalTime().ToString("HH:mm"),
                     IsMine = msg.FromClientId == _userId,
                     Sender = sender ?? new UserModel { Id = msg.FromClientId, Username = msg.SenderName },
-                    SenderAvatar = avatarBase64
+                    SenderAvatarBytes = sender?.AvatarBytes
                 });
             }
 
@@ -4290,7 +4290,7 @@ namespace WpfApp1.Views
                 Time = DateTime.Now.ToString("HH:mm"),
                 IsMine = true,
                 Sender = CurrentUser,
-                SenderAvatar = avatarBase64
+                SenderAvatarBytes = CurrentUser?.AvatarBytes
             };
 
             Messages.Add(myMessage);
@@ -4371,7 +4371,7 @@ namespace WpfApp1.Views
                     IsMine = true,
                     Sender = CurrentUser,
                     Time = DateTime.Now.ToShortTimeString(),
-                    SenderAvatar = avatarBase64
+                    SenderAvatarBytes = CurrentUser?.AvatarBytes
                 });
             }
         }
@@ -4445,8 +4445,7 @@ namespace WpfApp1.Views
             {
                 if (msg.Sender?.Id == CurrentUser?.Id)
                 {
-                    msg.SenderAvatar = CurrentUser?.AvatarBytes != null ?
-                        Convert.ToBase64String(CurrentUser.AvatarBytes) : null;
+                    msg.SenderAvatarBytes = CurrentUser?.AvatarBytes;
                 }
             }
             MessagesList?.Items.Refresh();

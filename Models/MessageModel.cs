@@ -11,7 +11,7 @@
         public UserModel Sender { get; set; }
 
         
-        public string SenderAvatar { get; set; }
+        public byte[] SenderAvatarBytes { get; set; }
         public bool IsFile { get; set; }
         public bool IsImage { get; set; }
         public string FilePath { get; set; }

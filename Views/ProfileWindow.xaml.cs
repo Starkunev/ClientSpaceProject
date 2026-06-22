@@ -466,6 +466,8 @@
 using Microsoft.Win32;
 using SpaceTcpChat.Models;
 using System;
+
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -670,7 +672,10 @@ namespace WpfApp1.Views
                 user.LastSeen = DateTime.Now;
                 user.IsOnline = true;
 
-                // Отправляем на сервер
+                if (!string.IsNullOrEmpty(user.AvatarPath) && File.Exists(user.AvatarPath))
+                {
+                    user.AvatarBytes = File.ReadAllBytes(user.AvatarPath);
+                }
                 if (_chatClient != null && _chatClient.IsConnected())
                 {
                     var updateRequest = new UpdateClientRequest
