@@ -680,6 +680,12 @@ namespace WpfApp1.Views
                         Avatar = user.AvatarBytes
                     };
 
+                    MessageBox.Show(
+    updateRequest.Avatar == null
+        ? "CLIENT → Avatar NULL"
+        : $"CLIENT → Avatar size = {updateRequest.Avatar.Length}"
+);
+
                     await _chatClient.UpdateClientAsync(updateRequest);
                 }
                 else

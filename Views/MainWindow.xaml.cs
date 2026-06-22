@@ -3902,6 +3902,7 @@ namespace WpfApp1.Views
             StartReceivingMessages();
             LoadMessageHistory();
             LoadAllClients(); // Загружаем список пользователей
+            
 
             Loaded += (s, e) => MessageTextBox.Focus();
         }
@@ -4045,9 +4046,17 @@ namespace WpfApp1.Views
                         break;
 
                     case PacketType.ClientUpdated:
+
+                        MessageBox.Show("Происходит");
                         try
                         {
+
                             var updatedClient = JsonSerializer.Deserialize<ClientResponse>(packet.Data.GetRawText());
+                            MessageBox.Show(
+    updatedClient?.Avatar == null
+        ? "Avatar NULL"
+        : $"Avatar bytes = {updatedClient.Avatar.Length}"
+);
                             if (updatedClient != null)
                             {
                                 UpdateClientInUI(updatedClient);
@@ -4156,6 +4165,11 @@ namespace WpfApp1.Views
             {
                 user.Username = client.Name;
                 user.AvatarBytes = client.Avatar;
+                MessageBox.Show(
+                 client.Avatar == null
+             ? "Avatar NULL"
+             : $"Avatar bytes: {client.Avatar.Length}"
+               );
                 user.IsOnline = client.IsOnline;
                 user.Status = client.IsOnline ? "Online" : "Offline";
 
