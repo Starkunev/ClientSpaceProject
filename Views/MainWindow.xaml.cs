@@ -3901,7 +3901,7 @@ namespace WpfApp1.Views
 
             StartReceivingMessages();
             LoadMessageHistory();
-            LoadAllClients(); // Загружаем список пользователей
+            LoadAllClients(); 
             
 
             Loaded += (s, e) => MessageTextBox.Focus();
@@ -3988,123 +3988,98 @@ namespace WpfApp1.Views
             }
         }
 
+       
+
         private void ProcessPacket(Packet packet)
         {
             try
             {
+                if (packet == null)
+                    return;
+
+                if (packet.Data.ValueKind == JsonValueKind.Undefined ||
+                    packet.Data.ValueKind == JsonValueKind.Null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Empty data: {packet.Type}");
+                    return;
+                }
+
                 switch (packet.Type)
                 {
                     case PacketType.MessageReceived:
-                        var messageResponse = JsonSerializer.Deserialize<MessageResponse>(packet.Data.GetRawText());
-                        if (messageResponse != null)
                         {
-                            AddMessageToUI(messageResponse);
+                            var messageResponse = packet.Data.Deserialize<MessageResponse>();
+                            if (messageResponse != null)
+                                AddMessageToUI(messageResponse);
+                            break;
                         }
-                        break;
 
-                    case PacketType.MessageAdded:
-                        var confirmResponse = JsonSerializer.Deserialize<BaseResponse>(packet.Data.GetRawText());
-                        if (confirmResponse?.Success == true)
+                    case PacketType.MessageAdded:  // ← ИСПРАВЛЕНО: Добавлен обработчик
                         {
-                            System.Diagnostics.Debug.WriteLine("Message sent successfully");
+                            var confirmResponse = packet.Data.Deserialize<BaseResponse>();
+                            if (confirmResponse?.Success == true)
+                            {
+                                System.Diagnostics.Debug.WriteLine("Сообщение успешно отправлено");
+                            }
+                            break;
                         }
-                        break;
 
                     case PacketType.MessageHistoryReceived:
-                        var messages = JsonSerializer.Deserialize<List<MessageResponse>>(packet.Data.GetRawText());
-                        if (messages != null)
                         {
-                            LoadMessageHistory(messages);
+                            var messages = packet.Data.Deserialize<List<MessageResponse>>();
+                            if (messages != null)
+                                LoadMessageHistory(messages);
+                            break;
                         }
-                        break;
 
-                    case PacketType.ClientStatusChanged:
-                        try
+                    case PacketType.ClientStatusChanged:  // ← ИСПРАВЛЕНО: Добавлен обработчик
                         {
-                            var statusResponse = JsonSerializer.Deserialize<ClientStatusResponse>(packet.Data.GetRawText());
+                            var statusResponse = packet.Data.Deserialize<ClientStatusResponse>();
                             if (statusResponse != null)
                             {
                                 UpdateUserStatus(statusResponse.ClientId, statusResponse.IsOnline);
                             }
+                            break;
                         }
-                        catch { }
-                        break;
 
-                    case PacketType.ClientList:
-                        try
+                    case PacketType.ClientList:  // ← ИСПРАВЛЕНО: Добавлен обработчик
                         {
-                            var clients = JsonSerializer.Deserialize<List<ClientResponse>>(packet.Data.GetRawText());
+                            var clients = packet.Data.Deserialize<List<ClientResponse>>();
                             if (clients != null)
-                            {
                                 LoadClients(clients);
-                            }
+                            break;
                         }
-                        catch (Exception ex)
+                    case PacketType.ClientRegistered:  // ← ИСПРАВЛЕНО: Добавлен обработчик
                         {
-                            System.Diagnostics.Debug.WriteLine($"ClientList error: {ex.Message}");
+                            var newClient = packet.Data.Deserialize<ClientResponse>();
+                            if (newClient != null)
+                                AddClientToUI(newClient);
+                            break;
                         }
-                        break;
+
+                    case PacketType.ClientLogged:  // ← ИСПРАВЛЕНО: Добавлен обработчик
+                        {
+                            var loggedClient = packet.Data.Deserialize<ClientResponse>();
+                            if (loggedClient != null)
+                                UpdateClientInUI(loggedClient);
+                            break;
+                        }
 
                     case PacketType.ClientUpdated:
-
-                        MessageBox.Show("Происходит");
-                        try
                         {
-
-                            var updatedClient = JsonSerializer.Deserialize<ClientResponse>(packet.Data.GetRawText());
-                            MessageBox.Show(
-    updatedClient?.Avatar == null
-        ? "Avatar NULL"
-        : $"Avatar bytes = {updatedClient.Avatar.Length}"
-);
+                            var updatedClient = packet.Data.Deserialize<ClientResponse>();
                             if (updatedClient != null)
-                            {
                                 UpdateClientInUI(updatedClient);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"ClientUpdated error: {ex.Message}");
-                        }
-                        break;
+                            break;
 
-                    case PacketType.ClientRegistered:
-                        try
-                        {
-                            var newClient = JsonSerializer.Deserialize<ClientResponse>(packet.Data.GetRawText());
-                            if (newClient != null)
-                            {
-                                AddClientToUI(newClient);
-                            }
                         }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"ClientRegistered error: {ex.Message}");
-                        }
-                        break;
-
-                    case PacketType.ClientLogged:
-                        try
-                        {
-                            var loggedClient = JsonSerializer.Deserialize<ClientResponse>(packet.Data.GetRawText());
-                            if (loggedClient != null)
-                            {
-                                UpdateClientInUI(loggedClient);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"ClientLogged error: {ex.Message}");
-                        }
-                        break;
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"ProcessPacket error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"ProcessPacket error: {ex}");
             }
         }
-
         private void LoadClients(List<ClientResponse> clients)
         {
             Users.Clear();
@@ -4165,11 +4140,11 @@ namespace WpfApp1.Views
             {
                 user.Username = client.Name;
                 user.AvatarBytes = client.Avatar;
-                MessageBox.Show(
-                 client.Avatar == null
-             ? "Avatar NULL"
-             : $"Avatar bytes: {client.Avatar.Length}"
-               );
+             //   MessageBox.Show(
+             //    client.Avatar == null
+             //? "Avatar NULL"
+             //: $"Avatar bytes: {client.Avatar.Length}"
+             //  );
                 user.IsOnline = client.IsOnline;
                 user.Status = client.IsOnline ? "Online" : "Offline";
 
@@ -5170,3 +5145,121 @@ namespace WpfApp1.Views
 //        }
 //    }
 //}
+
+
+//        private void ProcessPacket(Packet packet)
+//        {
+//            try
+//            {
+//                switch (packet.Type)
+//                {
+//                    case PacketType.MessageReceived:
+//                        var messageResponse = JsonSerializer.Deserialize<MessageResponse>(packet.Data.GetRawText());
+//                        if (messageResponse != null)
+//                        {
+//                            AddMessageToUI(messageResponse);
+//                        }
+//                        break;
+
+//                    case PacketType.MessageAdded:
+//                        var confirmResponse = JsonSerializer.Deserialize<BaseResponse>(packet.Data.GetRawText());
+//                        if (confirmResponse?.Success == true)
+//                        {
+//                            System.Diagnostics.Debug.WriteLine("Message sent successfully");
+//                        }
+//                        break;
+
+//                    case PacketType.MessageHistoryReceived:
+//                        var messages = JsonSerializer.Deserialize<List<MessageResponse>>(packet.Data.GetRawText());
+//                        if (messages != null)
+//                        {
+//                            LoadMessageHistory(messages);
+//                        }
+//                        break;
+
+//                    case PacketType.ClientStatusChanged:
+//                        try
+//                        {
+//                            var statusResponse = JsonSerializer.Deserialize<ClientStatusResponse>(packet.Data.GetRawText());
+//                            if (statusResponse != null)
+//                            {
+//                                UpdateUserStatus(statusResponse.ClientId, statusResponse.IsOnline);
+//                            }
+//                        }
+//                        catch { }
+//                        break;
+
+//                    case PacketType.ClientList:
+//                        try
+//                        {
+//                            var clients = JsonSerializer.Deserialize<List<ClientResponse>>(packet.Data.GetRawText());
+//                            if (clients != null)
+//                            {
+//                                LoadClients(clients);
+//                            }
+//                        }
+//                        catch (Exception ex)
+//                        {
+//                            System.Diagnostics.Debug.WriteLine($"ClientList error: {ex.Message}");
+//                        }
+//                        break;
+
+//                    case PacketType.ClientUpdated:
+
+//                        MessageBox.Show("Происходит");
+//                        try
+//                        {
+
+//                            var updatedClient = JsonSerializer.Deserialize<ClientResponse>(packet.Data.GetRawText());
+//                            MessageBox.Show(
+//    updatedClient?.Avatar == null
+//        ? "Avatar NULL"
+//        : $"Avatar bytes = {updatedClient.Avatar.Length}"
+//);
+//                            if (updatedClient != null)
+//                            {
+//                                UpdateClientInUI(updatedClient);
+//                            }
+//                        }
+//                        catch (Exception ex)
+//                        {
+//                            System.Diagnostics.Debug.WriteLine($"ClientUpdated error: {ex.Message}");
+//                        }
+//                        break;
+
+//                    case PacketType.ClientRegistered:
+//                        try
+//                        {
+//                            var newClient = JsonSerializer.Deserialize<ClientResponse>(packet.Data.GetRawText());
+//                            if (newClient != null)
+//                            {
+//                                AddClientToUI(newClient);
+//                            }
+//                        }
+//                        catch (Exception ex)
+//                        {
+//                            System.Diagnostics.Debug.WriteLine($"ClientRegistered error: {ex.Message}");
+//                        }
+//                        break;
+
+//                    case PacketType.ClientLogged:
+//                        try
+//                        {
+//                            var loggedClient = JsonSerializer.Deserialize<ClientResponse>(packet.Data.GetRawText());
+//                            if (loggedClient != null)
+//                            {
+//                                UpdateClientInUI(loggedClient);
+//                            }
+//                        }
+//                        catch (Exception ex)
+//                        {
+//                            System.Diagnostics.Debug.WriteLine($"ClientLogged error: {ex.Message}");
+//                        }
+//                        break;
+//                }
+//            }
+//            catch (Exception ex)
+//            {
+//                System.Diagnostics.Debug.WriteLine($"ProcessPacket error: {ex.Message}");
+//            }
+//        }

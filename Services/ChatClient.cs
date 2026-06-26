@@ -455,6 +455,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows;
 using WpfApp1.Models;
 
 namespace WpfApp1
@@ -706,6 +707,7 @@ namespace WpfApp1
             await SendPacketAsync(packet);
         }
 
+
         public async Task<Packet> ReceivePacketAsync()
         {
             if (_stream == null || !_client.Connected)
@@ -720,31 +722,87 @@ namespace WpfApp1
 
             int dataLength = BitConverter.ToInt32(lengthBuffer, 0);
 
+            //if (dataLength <= 0)
+            //    return null;
+
             byte[] dataBuffer = new byte[dataLength];
 
             int totalRead = 0;
 
             while (totalRead < dataLength)
             {
-                int currentRead = await _stream.ReadAsync(dataBuffer, totalRead, dataLength - totalRead);
+                int currentRead = await _stream.ReadAsync(
+                    dataBuffer,
+                    totalRead,
+                    dataLength - totalRead);
 
                 if (currentRead == 0)
-                    return null;
+                    return new Packet();
 
                 totalRead += currentRead;
             }
 
             string json = Encoding.UTF8.GetString(dataBuffer);
 
-            return JsonSerializer.Deserialize<Packet>(json, _jsonOptions);
+            if (string.IsNullOrWhiteSpace(json))
+                return new Packet();
+
+            try
+            {
+                var packet = JsonSerializer.Deserialize<Packet>(json, _jsonOptions);
+
+                return packet ?? new Packet();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка десериализации: {ex.Message}");
+                return new Packet();
+            }
         }
+        //public async Task<Packet> ReceivePacketAsync()
+        //{
+        //    if (_stream == null || !_client.Connected)
+        //        return null;
+
+        //    byte[] lengthBuffer = new byte[4];
+
+        //    int bytesRead = await _stream.ReadAsync(lengthBuffer, 0, 4);
+
+        //    if (bytesRead == 0)
+        //        return new Packet();
+
+        //    int dataLength = BitConverter.ToInt32(lengthBuffer, 0);
+
+        //    byte[] dataBuffer = new byte[dataLength];
+
+        //    int totalRead = 0;
+
+        //    while (totalRead < dataLength)
+        //    {
+        //        int currentRead = await _stream.ReadAsync(dataBuffer, totalRead, dataLength - totalRead);
+
+        //        if (currentRead == 0)
+        //            return null;
+
+        //        totalRead += currentRead;
+        //    }
+
+        //    string json = Encoding.UTF8.GetString(dataBuffer);
+
+        //    return JsonSerializer.Deserialize<Packet>(json, _jsonOptions);
+        //}
 
         public async Task GetAllClientsAsync()
         {
+            // Создаем пустой JsonElement
+            JsonDocument doc = JsonDocument.Parse("{}");
+
             var packet = new Packet
             {
-                Type = PacketType.GetAllClients
+                Type = PacketType.GetAllClients,
+                Data = doc.RootElement.Clone()
             };
+
             await SendPacketAsync(packet);
         }
 
