@@ -10,7 +10,7 @@ namespace WpfApp1.Models
     {
         public bool Success { get; set; }
         public string Message { get; set; }
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public bool IsOnline { get; set; }
     }

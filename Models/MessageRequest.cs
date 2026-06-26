@@ -8,7 +8,7 @@ namespace WpfApp1.Models
 {
     public class MessageRequest
     {
-        public int FromClientId { get; set; }
+        public Guid FromClientId { get; set; }
         public string Text { get; set; } = string.Empty;
     }
 }

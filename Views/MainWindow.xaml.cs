@@ -3879,10 +3879,10 @@ namespace WpfApp1.Views
         private DispatcherTimer onlineTimer;
 
         private readonly ChatClient _chatClient;
-        private readonly int _userId;
+        private readonly Guid _userId;
         private readonly string _userName;
 
-        public MainWindow(ChatClient chatClient, int userId, string userName)
+        public MainWindow(ChatClient chatClient, Guid userId, string userName)
         {
             InitializeComponent();
             DataContext = this;
@@ -4258,7 +4258,7 @@ namespace WpfApp1.Views
             }
         }
 
-        private void UpdateUserStatus(int clientId, bool isOnline)
+        private void UpdateUserStatus(Guid clientId, bool isOnline)
         {
             var user = Users.FirstOrDefault(u => u.Id == clientId);
             if (user != null)

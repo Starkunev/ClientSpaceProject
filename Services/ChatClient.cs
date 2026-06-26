@@ -635,7 +635,7 @@ namespace WpfApp1
                         if (data.TryGetProperty("ClientResponse", out JsonElement clientResponseElem))
                         {
                             if (clientResponseElem.TryGetProperty("Id", out JsonElement id))
-                                response.Id = id.GetInt32();
+                                response.Id = Guid.Parse(id.GetString());
                             if (clientResponseElem.TryGetProperty("Name", out JsonElement name))
                                 response.Name = name.GetString() ?? "";
                             if (clientResponseElem.TryGetProperty("IsOnline", out JsonElement online))
@@ -657,7 +657,7 @@ namespace WpfApp1
                     if (root.TryGetProperty("Message", out JsonElement message))
                         response.Message = message.GetString() ?? (response.Success ? "Успешно" : "Ошибка");
                     if (root.TryGetProperty("Id", out JsonElement id))
-                        response.Id = id.GetInt32();
+                        response.Id = Guid.Parse(id.GetString());
                     if (root.TryGetProperty("Name", out JsonElement name))
                         response.Name = name.GetString() ?? "";
                 }
@@ -677,7 +677,7 @@ namespace WpfApp1
 
         //-------------------------- Методы для отправки и получения сообщений -----------------------------------------
 
-        public async Task SendMessageAsync(int ClientId, string text)
+        public async Task SendMessageAsync(Guid ClientId, string text)
         {
             var request = new MessageRequest
             {
