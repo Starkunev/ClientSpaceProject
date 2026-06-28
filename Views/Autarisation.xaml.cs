@@ -484,7 +484,7 @@ namespace WpfApp1.Views
                             "Успешный вход", MessageBoxButton.OK, MessageBoxImage.Information);
 
                         // ТОЛЬКО ЭТА СТРОКА ИЗМЕНЕНА - открываем MainWindow вместо ChatWin
-                        var chatWindow = new MainWindow(_serverClient,result.Id,result.Name);
+                        var chatWindow = new MainWindow(_serverClient,result.Id,result.Name,txtLogin.Text.Trim(),txtPassword.Password);
                         chatWindow.Show();
                         this.Close();
                     }
