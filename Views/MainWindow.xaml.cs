@@ -399,8 +399,8 @@ namespace WpfApp1.Views
                     System.Diagnostics.Debug.WriteLine("Аватар НЕ обновлен (null или пустой)");
                 }
 
-                user.IsOnline = client.IsOnline;
-                user.Status = client.IsOnline ? "Online" : "Offline";
+                //user.IsOnline = client.IsOnline;
+                //user.Status = client.IsOnline ? "Online" : "Offline";
 
                 UsersList?.Items.Refresh();
                 RefreshMessagesAvatars();
