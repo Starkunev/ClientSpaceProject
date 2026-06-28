@@ -79,7 +79,7 @@ namespace WpfApp1.Views
             LoadUser();
 
             StartReceivingMessages();
-            LoadMessageHistory();
+           // LoadMessageHistory();
             LoadAllClients(); 
             
 
@@ -238,14 +238,93 @@ namespace WpfApp1.Views
                             break;
                         }
 
+                    //case PacketType.ClientLogged:
+                    //    {
+                    //        var json = packet.Data.GetRawText();
+
+                    //        // Ответ приходит в формате { BaseResponse: {...}, ClientResponse: {...} }
+                    //        if (json.Contains("ClientResponse"))
+                    //        {
+                    //            var doc = JsonDocument.Parse(json);
+                    //            var root = doc.RootElement;
+
+                    //            if (root.TryGetProperty("ClientResponse", out JsonElement clientElement))
+                    //            {
+                    //                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    //                options.Converters.Add(new Base64ByteArrayConverter());
+
+                    //                var loggedClient = JsonSerializer.Deserialize<ClientResponse>(
+                    //                    clientElement.GetRawText(), options);
+
+                    //                if (loggedClient != null)
+                    //                {
+                    //                    // Если это текущий пользователь - обновляем его аватар
+                    //                    if (loggedClient.Id == _userId && loggedClient.Avatar != null)
+                    //                    {
+                    //                        CurrentUser.AvatarBytes = loggedClient.Avatar;
+                    //                        System.Diagnostics.Debug.WriteLine($"Аватар текущего пользователя обновлен: {loggedClient.Avatar.Length} байт");
+                    //                    }
+
+                    //                    UpdateClientInUI(loggedClient);
+                    //                }
+                    //            }
+                    //        }
+                    //        else
+                    //        {
+                    //            // Старый формат (просто ClientResponse)
+                    //            var loggedClient = JsonSerializer.Deserialize<ClientResponse>(json);
+                    //            if (loggedClient != null)
+                    //            {
+                    //                if (loggedClient.Id == _userId && loggedClient.Avatar != null)
+                    //                {
+                    //                    CurrentUser.AvatarBytes = loggedClient.Avatar;
+                    //                }
+                    //                UpdateClientInUI(loggedClient);
+                    //            }
+                    //        }
+                    //        break;
+                    //    }
                     case PacketType.ClientLogged:
                         {
-                            var loggedClient = packet.Data.Deserialize<ClientResponse>();
-                            if (loggedClient != null)
-                                UpdateClientInUI(loggedClient);
+                            System.Diagnostics.Debug.WriteLine($"=== Получен ClientLogged ===");
+                            System.Diagnostics.Debug.WriteLine($"Raw Data: {packet.Data.GetRawText()}");
+
+                            var json = packet.Data.GetRawText();
+
+                            if (json.Contains("ClientResponse"))
+                            {
+                                 var doc = JsonDocument.Parse(json);
+                                var root = doc.RootElement;
+
+                                if (root.TryGetProperty("ClientResponse", out JsonElement clientElement))
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"ClientResponse JSON: {clientElement.GetRawText()}");
+
+                                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                                    options.Converters.Add(new Base64ByteArrayConverter());
+
+                                    var loggedClient = JsonSerializer.Deserialize<ClientResponse>(
+                                        clientElement.GetRawText(), options);
+
+                                    if (loggedClient != null)
+                                    {
+                                        System.Diagnostics.Debug.WriteLine($"ClientLogged: Id={loggedClient.Id}, Name={loggedClient.Name}");
+                                        System.Diagnostics.Debug.WriteLine($"CurrentUserId={_userId}, Совпадает: {loggedClient.Id == _userId}");
+                                        System.Diagnostics.Debug.WriteLine($"Avatar null: {loggedClient.Avatar == null}, Length: {loggedClient.Avatar?.Length ?? 0}");
+
+                                        // Если это текущий пользователь - обновляем его аватар
+                                        if (loggedClient.Id == _userId && loggedClient.Avatar != null && loggedClient.Avatar.Length > 0)
+                                        {
+                                            CurrentUser.AvatarBytes = loggedClient.Avatar;
+                                            System.Diagnostics.Debug.WriteLine($"✅ Аватар текущего пользователя обновлен: {loggedClient.Avatar.Length} байт");
+                                        }
+
+                                        UpdateClientInUI(loggedClient);
+                                    }
+                                }
+                            }
                             break;
                         }
-
                     case PacketType.ClientUpdated:
                         {
                             System.Diagnostics.Debug.WriteLine($"=== Получен ClientUpdated пакет ===");
@@ -319,7 +398,6 @@ namespace WpfApp1.Views
         }
 
 
-
         private void LoadClients(List<ClientResponse> clients)
         {
             Users.Clear();
@@ -339,6 +417,14 @@ namespace WpfApp1.Views
                     About = ""
                 };
                 Users.Add(user);
+
+                // ✅ Если это текущий пользователь - обновляем CurrentUser
+                if (client.Id == _userId)
+                {
+                    CurrentUser.AvatarBytes = client.Avatar;
+                    CurrentUser.Username = client.Name;
+                    System.Diagnostics.Debug.WriteLine($"✅ Аватар текущего пользователя из ClientList: {(client.Avatar?.Length ?? 0)} байт");
+                }
             }
 
             // Добавляем текущего пользователя, если его нет в списке
@@ -349,6 +435,38 @@ namespace WpfApp1.Views
 
             UsersList?.Items.Refresh();
         }
+
+
+        //private void LoadClients(List<ClientResponse> clients)
+        //{
+        //    Users.Clear();
+
+        //    foreach (var client in clients)
+        //    {
+        //        var user = new UserModel
+        //        {
+        //            Id = client.Id,
+        //            Username = client.Name,
+        //            AvatarBytes = client.Avatar,
+        //            IsOnline = client.IsOnline,
+        //            Status = client.IsOnline ? "Online" : "Offline",
+        //            IpAddress = "127.0.0.1",
+        //            LastSeen = DateTime.Now,
+        //            Theme = "Dark",
+        //            About = ""
+        //        };
+        //        Users.Add(user);
+
+        //    }
+
+        //    // Добавляем текущего пользователя, если его нет в списке
+        //    if (!Users.Any(u => u.Id == _userId))
+        //    {
+        //        Users.Add(CurrentUser);
+        //    }
+
+        //    UsersList?.Items.Refresh();
+        //}
 
         private void AddClientToUI(ClientResponse client)
         {
@@ -374,9 +492,44 @@ namespace WpfApp1.Views
         }
 
 
+        //private void UpdateClientInUI(ClientResponse client)
+        //{
+        //    // ОТЛАДКА
+        //    System.Diagnostics.Debug.WriteLine($"=== UpdateClientInUI ===");
+        //    System.Diagnostics.Debug.WriteLine($"Client Id: {client.Id}, Name: {client.Name}");
+        //    System.Diagnostics.Debug.WriteLine($"Avatar null: {client.Avatar == null}, Length: {client.Avatar?.Length ?? 0}");
+
+        //    var user = Users.FirstOrDefault(u => u.Id == client.Id);
+        //    if (user != null)
+        //    {
+        //        System.Diagnostics.Debug.WriteLine($"Найден пользователь в UI: {user.Username}");
+
+        //        user.Username = client.Name;
+
+        //        // Добавьте проверку
+        //        if (client.Avatar != null && client.Avatar.Length > 0)
+        //        {
+        //            user.AvatarBytes = client.Avatar;
+        //            System.Diagnostics.Debug.WriteLine($"Аватар обновлен: {client.Avatar.Length} байт");
+        //        }
+        //        else
+        //        {
+        //            System.Diagnostics.Debug.WriteLine("Аватар НЕ обновлен (null или пустой)");
+        //        }
+
+        //        //user.IsOnline = client.IsOnline;
+        //        //user.Status = client.IsOnline ? "Online" : "Offline";
+
+        //        UsersList?.Items.Refresh();
+        //        RefreshMessagesAvatars();
+        //    }
+        //    else
+        //    {
+        //        System.Diagnostics.Debug.WriteLine($"Пользователь с Id={client.Id} НЕ НАЙДЕН в списке UI");
+        //    }
+        //}
         private void UpdateClientInUI(ClientResponse client)
         {
-            // ОТЛАДКА
             System.Diagnostics.Debug.WriteLine($"=== UpdateClientInUI ===");
             System.Diagnostics.Debug.WriteLine($"Client Id: {client.Id}, Name: {client.Name}");
             System.Diagnostics.Debug.WriteLine($"Avatar null: {client.Avatar == null}, Length: {client.Avatar?.Length ?? 0}");
@@ -388,19 +541,19 @@ namespace WpfApp1.Views
 
                 user.Username = client.Name;
 
-                // Добавьте проверку
                 if (client.Avatar != null && client.Avatar.Length > 0)
                 {
                     user.AvatarBytes = client.Avatar;
                     System.Diagnostics.Debug.WriteLine($"Аватар обновлен: {client.Avatar.Length} байт");
                 }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("Аватар НЕ обновлен (null или пустой)");
-                }
 
-                //user.IsOnline = client.IsOnline;
-                //user.Status = client.IsOnline ? "Online" : "Offline";
+                // ✅ Если это текущий пользователь - обновляем CurrentUser
+                if (client.Id == _userId)
+                {
+                    CurrentUser.AvatarBytes = user.AvatarBytes;
+                    CurrentUser.Username = user.Username;
+                    System.Diagnostics.Debug.WriteLine($"✅ CurrentUser обновлен");
+                }
 
                 UsersList?.Items.Refresh();
                 RefreshMessagesAvatars();
@@ -410,7 +563,6 @@ namespace WpfApp1.Views
                 System.Diagnostics.Debug.WriteLine($"Пользователь с Id={client.Id} НЕ НАЙДЕН в списке UI");
             }
         }
-
         //private void UpdateClientInUI(ClientResponse client)
         //{
         //    var user = Users.FirstOrDefault(u => u.Id == client.Id);

@@ -252,7 +252,8 @@ namespace WpfApp1
         {
             var packet = new Packet
             {
-                Type = PacketType.GetAllMessages
+                Type = PacketType.GetAllMessages,
+                Data = JsonSerializer.SerializeToElement(new { })
             };
             await SendPacketAsync(packet);
         }
