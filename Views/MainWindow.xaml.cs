@@ -86,40 +86,17 @@ namespace WpfApp1.Views
             {
                 MessageTextBox.Focus();
 
-                // Загружаем клиентов и историю после полной инициализации
+                
                 if (_chatClient.IsConnected())
                 {
-                    await Task.Delay(300); // Небольшая задержка
+                    await Task.Delay(300); 
                     await _chatClient.GetAllClientsAsync();
                     await _chatClient.GetAllMessages();
                 }
             };
 
             Console.WriteLine($"MainWindow создан: UserId={_userId}, UserName={_userName}, UserLogin={_userLogin}");
-            //InitializeComponent();
-            //DataContext = this;
-
-            //_chatClient = chatClient;
-            //_userPassword = password ?? string.Empty;
-            //_userId = userId;
-            //_userName = userName;
-            //_userLogin = login ?? userName;
-
-            //UsersList.ItemsSource = Users;
-            //MessagesList.ItemsSource = Messages;
-
-            //MessageTextBox.PreviewKeyDown += MessageTextBox_PreviewKeyDown;
-
-            //SetupTimers();
-            //LoadUser();
-
-            //StartReceivingMessages();
-
-            //LoadAllClients(); 
-
-
-            //Loaded += (s, e) => MessageTextBox.Focus();
-            //Console.WriteLine($"MainWindow создан: UserId={_userId}, UserName={_userName}, UserLogin={_userLogin}");
+            
         }
 
         private void LoadUser()
@@ -221,27 +198,7 @@ namespace WpfApp1.Views
 
                 switch (packet.Type)
                 {
-                    //case PacketType.MessageReceived:
-                    //    {
-
-                    //        System.Diagnostics.Debug.WriteLine($"=== Получен MessageReceived ===");
-                    //        System.Diagnostics.Debug.WriteLine($"Raw Data: {packet.Data.GetRawText()}");
-
-                    //        var messageResponse = packet.Data.Deserialize<MessageResponse>();
-                    //        if (messageResponse != null)
-                    //        {
-                    //            // Проверяем, нет ли уже сообщения с таким Id (чтобы не дублировать)
-                    //            if (!Messages.Any(m => m.Id == messageResponse.Id))
-                    //            {
-                    //                AddMessageToUI(messageResponse);
-                    //            }
-                    //        }
-                    //        break;
-                    //        //var messageResponse = packet.Data.Deserialize<MessageResponse>();
-                    //        //if (messageResponse != null)
-                    //        //    AddMessageToUI(messageResponse);
-                    //        //break;
-                    //    }
+                    
                     case PacketType.MessageReceived:
                         {
                             System.Diagnostics.Debug.WriteLine($"=== Получен MessageReceived ===");
@@ -250,7 +207,7 @@ namespace WpfApp1.Views
                             var messageResponse = packet.Data.Deserialize<MessageResponse>();
                             if (messageResponse != null)
                             {
-                                // Проверяем, нет ли уже такого сообщения
+                               
                                 if (!Messages.Any(m => m.Id == messageResponse.Id))
                                 {
                                     AddMessageToUI(messageResponse);
@@ -258,40 +215,7 @@ namespace WpfApp1.Views
                             }
                             break;
                         }
-                    //case PacketType.MessageAdded:
-                    //    {
-                    //        System.Diagnostics.Debug.WriteLine($"=== Получен MessageAdded ===");
-                    //        System.Diagnostics.Debug.WriteLine($"Raw Data: {packet.Data.GetRawText()}");
-
-                    //        try
-                    //        {
-                    //            var json = packet.Data.GetRawText();
-                    //            var doc = JsonDocument.Parse(json);
-                    //            var root = doc.RootElement;
-
-                    //            if (root.TryGetProperty("Success", out JsonElement success) && success.GetBoolean())
-                    //            {
-                    //                if (root.TryGetProperty("MessageId", out JsonElement msgId))
-                    //                {
-                    //                    var realId = msgId.GetGuid();
-                    //                    System.Diagnostics.Debug.WriteLine($"Реальный Id сообщения: {realId}");
-
-                    //                    // Ищем сообщение с временным Id (IsMine и Id не совпадает с другими)
-                    //                    var myMessage = Messages.LastOrDefault(m => m.IsMine);
-                    //                    if (myMessage != null)
-                    //                    {
-                    //                        myMessage.Id = realId;
-                    //                        System.Diagnostics.Debug.WriteLine($"Id обновлен: {realId}");
-                    //                    }
-                    //                }
-                    //            }
-                    //        }
-                    //        catch (Exception ex)
-                    //        {
-                    //            System.Diagnostics.Debug.WriteLine($"MessageAdded error: {ex.Message}");
-                    //        }
-                    //        break;
-                    //    }
+                    
 
                     case PacketType.MessageAdded:
                         {
@@ -304,12 +228,12 @@ namespace WpfApp1.Views
                                 var doc = JsonDocument.Parse(json);
                                 var root = doc.RootElement;
 
-                                // Проверяем, есть ли вложенный baseResponse
+                                
                                 if (root.TryGetProperty("baseResponse", out JsonElement baseResp))
                                 {
                                     if (baseResp.TryGetProperty("Success", out JsonElement success) && success.GetBoolean())
                                     {
-                                        // Ищем messageResponse с реальным Id
+                                        
                                         if (root.TryGetProperty("messageResponse", out JsonElement msgResp))
                                         {
                                             if (msgResp.TryGetProperty("Id", out JsonElement msgId))
@@ -317,7 +241,7 @@ namespace WpfApp1.Views
                                                 var realId = msgId.GetGuid();
                                                 System.Diagnostics.Debug.WriteLine($"Реальный Id сообщения: {realId}");
 
-                                                // Ищем временное сообщение (IsMine = true) и обновляем его Id
+                                              
                                                 var myMessage = Messages.LastOrDefault(m => m.IsMine);
                                                 if (myMessage != null)
                                                 {
@@ -330,12 +254,12 @@ namespace WpfApp1.Views
                                     }
                                     else
                                     {
-                                        // Ошибка отправки
+                              
                                         var errorMsg = baseResp.TryGetProperty("Message", out JsonElement msg)
                                             ? msg.GetString()
                                             : "Неизвестная ошибка";
 
-                                        // Удаляем временное сообщение
+                                       
                                         var myMessage = Messages.LastOrDefault(m => m.IsMine);
                                         if (myMessage != null)
                                         {
@@ -348,7 +272,7 @@ namespace WpfApp1.Views
                                 }
                                 else
                                 {
-                                    // Старый формат - пробуем как раньше
+                                    
                                     if (root.TryGetProperty("Success", out JsonElement success) && success.GetBoolean())
                                     {
                                         if (root.TryGetProperty("MessageId", out JsonElement msgId))
@@ -370,35 +294,7 @@ namespace WpfApp1.Views
                             }
                             break;
                         }
-                    //case PacketType.MessageAdded:
-                    //    {
-                    //        System.Diagnostics.Debug.WriteLine($"=== Получен MessageAdded ===");
-                    //        System.Diagnostics.Debug.WriteLine($"Raw Data: {packet.Data.GetRawText()}");
-
-                    //        try
-                    //        {
-                    //            var json = packet.Data.GetRawText();
-
-                    //            // Пробуем десериализовать как BaseResponse
-                    //            var baseResponse = JsonSerializer.Deserialize<BaseResponse>(json);
-                    //            if (baseResponse?.Success == true)
-                    //            {
-                    //                System.Diagnostics.Debug.WriteLine("Сообщение успешно отправлено");
-                    //            }
-                    //            else if (baseResponse?.Success == false)
-                    //            {
-                    //                System.Diagnostics.Debug.WriteLine($"Ошибка отправки: {baseResponse.Message}");
-                    //            }
-                    //        }
-                    //        catch { }
-                    //        break;
-                    //        //var confirmResponse = packet.Data.Deserialize<BaseResponse>();
-                    //        //if (confirmResponse?.Success == true)
-                    //        //{
-                    //        //    System.Diagnostics.Debug.WriteLine("Сообщение успешно отправлено");
-                    //        //}
-                    //        //break;
-                    //    }
+                    
 
                     case PacketType.MessageHistoryReceived:
                         {
@@ -443,7 +339,7 @@ namespace WpfApp1.Views
                             {
                                 var json = packet.Data.GetRawText();
 
-                                // Пробуем десериализовать как Guid (успешное удаление)
+                                
                                 var guidJson = json.Trim('"');
                                 if (Guid.TryParse(guidJson, out Guid messageId))
                                 {
@@ -461,7 +357,7 @@ namespace WpfApp1.Views
                                 }
                                 else
                                 {
-                                    // Это ошибка BaseResponse
+                                    
                                     var errorResponse = JsonSerializer.Deserialize<BaseResponse>(json);
                                     if (errorResponse != null)
                                     {
@@ -475,41 +371,8 @@ namespace WpfApp1.Views
                             }
                             break;
                         }
-                    //case PacketType.MessageDeleted:
-                    //   {
-                    //       System.Diagnostics.Debug.WriteLine($"=== Получен MessageDeleted ===");
-                    //       System.Diagnostics.Debug.WriteLine($"Raw Data: {packet.Data.GetRawText()}");
-
-                    //       try
-                    //       {
-                    //           // Сервер отправляет просто Guid
-                    //           var messageId = packet.Data.Deserialize<Guid>();
-
-                    //           if (messageId != Guid.Empty)
-                    //           {
-                    //               System.Diagnostics.Debug.WriteLine($"Удаление сообщения: {messageId}");
-
-                    //               Dispatcher.InvokeAsync(() =>
-                    //               {
-                    //                   var messageToRemove = Messages.FirstOrDefault(m => m.Id == messageId);
-                    //                   if (messageToRemove != null)
-                    //                   {
-                    //                       Messages.Remove(messageToRemove);
-                    //                       System.Diagnostics.Debug.WriteLine($"Сообщение удалено из UI");
-                    //                   }
-                    //                   else
-                    //                   {
-                    //                       System.Diagnostics.Debug.WriteLine($"Сообщение с Id={messageId} не найдено в UI");
-                    //                   }
-                    //               });
-                    //           }
-                    //       }
-                    //       catch (Exception ex)
-                    //       {
-                    //           System.Diagnostics.Debug.WriteLine($"MessageDeleted error: {ex.Message}");
-                    //       }
-                    //       break;
-                    //   }
+                    
+                  
 
 
                     case PacketType.ClientLogged:
@@ -598,7 +461,7 @@ namespace WpfApp1.Views
                                 }
                                 else
                                 {
-                                    // Пробуем старый формат (прямой ClientResponse)
+                                   
                                     var updatedClient = JsonSerializer.Deserialize<ClientResponse>(json, options);
                                     if (updatedClient != null && updatedClient.Id != Guid.Empty)
                                     {
@@ -665,40 +528,11 @@ namespace WpfApp1.Views
         }
 
 
-        //private void LoadClients(List<ClientResponse> clients)
-        //{
-        //    Users.Clear();
-
-        //    foreach (var client in clients)
-        //    {
-        //        var user = new UserModel
-        //        {
-        //            Id = client.Id,
-        //            Username = client.Name,
-        //            AvatarBytes = client.Avatar,
-        //            IsOnline = client.IsOnline,
-        //            Status = client.IsOnline ? "Online" : "Offline",
-        //            IpAddress = "127.0.0.1",
-        //            LastSeen = DateTime.Now,
-        //            Theme = "Dark",
-        //            About = ""
-        //        };
-        //        Users.Add(user);
-
-        //    }
-
-        //    // Добавляем текущего пользователя, если его нет в списке
-        //    if (!Users.Any(u => u.Id == _userId))
-        //    {
-        //        Users.Add(CurrentUser);
-        //    }
-
-        //    UsersList?.Items.Refresh();
-        //}
+       
 
         private void AddClientToUI(ClientResponse client)
         {
-            // Проверяем, есть ли уже такой пользователь
+           
             if (Users.Any(u => u.Id == client.Id))
                 return;
 
@@ -720,42 +554,7 @@ namespace WpfApp1.Views
         }
 
 
-        //private void UpdateClientInUI(ClientResponse client)
-        //{
-        //    // ОТЛАДКА
-        //    System.Diagnostics.Debug.WriteLine($"=== UpdateClientInUI ===");
-        //    System.Diagnostics.Debug.WriteLine($"Client Id: {client.Id}, Name: {client.Name}");
-        //    System.Diagnostics.Debug.WriteLine($"Avatar null: {client.Avatar == null}, Length: {client.Avatar?.Length ?? 0}");
-
-        //    var user = Users.FirstOrDefault(u => u.Id == client.Id);
-        //    if (user != null)
-        //    {
-        //        System.Diagnostics.Debug.WriteLine($"Найден пользователь в UI: {user.Username}");
-
-        //        user.Username = client.Name;
-
-        //        // Добавьте проверку
-        //        if (client.Avatar != null && client.Avatar.Length > 0)
-        //        {
-        //            user.AvatarBytes = client.Avatar;
-        //            System.Diagnostics.Debug.WriteLine($"Аватар обновлен: {client.Avatar.Length} байт");
-        //        }
-        //        else
-        //        {
-        //            System.Diagnostics.Debug.WriteLine("Аватар НЕ обновлен (null или пустой)");
-        //        }
-
-        //        //user.IsOnline = client.IsOnline;
-        //        //user.Status = client.IsOnline ? "Online" : "Offline";
-
-        //        UsersList?.Items.Refresh();
-        //        RefreshMessagesAvatars();
-        //    }
-        //    else
-        //    {
-        //        System.Diagnostics.Debug.WriteLine($"Пользователь с Id={client.Id} НЕ НАЙДЕН в списке UI");
-        //    }
-        //}
+       
         private void UpdateClientInUI(ClientResponse client)
         {
             System.Diagnostics.Debug.WriteLine($"=== UpdateClientInUI ===");
@@ -791,73 +590,35 @@ namespace WpfApp1.Views
                 System.Diagnostics.Debug.WriteLine($"Пользователь с Id={client.Id} НЕ НАЙДЕН в списке UI");
             }
         }
-        //private void UpdateClientInUI(ClientResponse client)
-        //{
-        //    var user = Users.FirstOrDefault(u => u.Id == client.Id);
-        //    if (user != null)
-        //    {
-        //        user.Username = client.Name;
-
-        //        // Добавьте проверку
-        //        if (client.Avatar != null && client.Avatar.Length > 0)
-        //        {
-        //            user.AvatarBytes = client.Avatar;
-        //        }
-
-        //        user.IsOnline = client.IsOnline;
-        //        user.Status = client.IsOnline ? "Online" : "Offline";
-
-        //        UsersList?.Items.Refresh();
-        //        RefreshMessagesAvatars(); // ← Важно!
-        //    }
-        //}
-
-        //private void UpdateClientInUI(ClientResponse client)
-        //{
-        //    var user = Users.FirstOrDefault(u => u.Id == client.Id);
-        //    if (user != null)
-        //    {
-        //        user.Username = client.Name;
-        //        user.AvatarBytes = client.Avatar;
-        //        MessageBox.Show(
-        //         client.Avatar == null
-        //     ? "Avatar NULL"
-        //     : $"Avatar bytes: {client.Avatar.Length}"
-        //       );
-        //        user.IsOnline = client.IsOnline;
-        //        user.Status = client.IsOnline ? "Online" : "Offline";
-
-        //        UsersList?.Items.Refresh();
-        //    }
-        //}
+        
 
         private void AddMessageToUI(MessageResponse message)
         {
-            // Проверяем, не наше ли это сообщение (эхо от broadcast)
+    
             if (message.FromClientId == _userId)
             {
-                // Ищем наше временное сообщение
+              
                 var existingMsg = Messages.LastOrDefault(m => m.IsMine);
                 if (existingMsg != null)
                 {
-                    // Обновляем ID на реальный
+                  
                     existingMsg.Id = message.Id;
                     MessagesList?.Items.Refresh();
                     System.Diagnostics.Debug.WriteLine($"Обновлен ID своего сообщения: {message.Id}");
                 }
                 else
                 {
-                    // Если временного нет (например, при переподключении), добавляем
+                    
                     AddNewMessage(message);
                 }
-                return; // Не добавляем дубликат
+                return; 
             }
 
-            // Чужое сообщение - добавляем
+           
             AddNewMessage(message);
         }
 
-        // Вспомогательный метод для добавления нового сообщения
+        
         private void AddNewMessage(MessageResponse message)
         {
             var sender = Users.FirstOrDefault(u => u.Id == message.FromClientId);
@@ -888,44 +649,7 @@ namespace WpfApp1.Views
                 MessagesList.ScrollIntoView(MessagesList.Items[MessagesList.Items.Count - 1]);
         }
 
-        //private void AddMessageToUI(MessageResponse message)
-        //{
-
-        //    var sender = Users.FirstOrDefault(u => u.Id == message.FromClientId);
-
-
-        //    if (sender == null)
-        //    {
-        //        sender = new UserModel
-        //        {
-        //            Id = message.FromClientId,
-        //            Username = message.SenderName
-        //        };
-        //    }
-
-
-        //    string avatarBase64 = null;
-        //    if (sender.AvatarBytes != null && sender.AvatarBytes.Length > 0)
-        //    {
-        //        avatarBase64 = Convert.ToBase64String(sender.AvatarBytes);
-        //    }
-
-        //    var messageModel = new MessageModel
-        //    {
-        //        Id = message.Id,
-        //        Username = message.SenderName,
-        //        Message = message.Text,
-        //        Time = message.CreatedAt.ToLocalTime().ToString("HH:mm"),
-        //        IsMine = message.FromClientId == _userId,
-        //        Sender = sender,
-        //        SenderAvatarBytes = sender?.AvatarBytes
-        //    };
-
-        //    Messages.Add(messageModel);
-
-        //    if (MessagesList.Items.Count > 0)
-        //        MessagesList.ScrollIntoView(MessagesList.Items[MessagesList.Items.Count - 1]);
-        //}
+       
 
         private void LoadMessageHistory(List<MessageResponse> messages)
         {
@@ -968,10 +692,10 @@ namespace WpfApp1.Views
                 {
                     try
                     {
-                        // Отправляем запрос на сервер
+                        
                         await _chatClient.DeleteMessageAsync(message.Id);
 
-                        // ✅ Удаляем из UI сразу
+                       
                         Messages.Remove(message);
                     }
                     catch (Exception ex)
@@ -982,31 +706,7 @@ namespace WpfApp1.Views
                 }
             }
         }
-        //private async void DeleteMessage_Click(object sender, RoutedEventArgs e)
-        //{
-        //    if (sender is Button button && button.Tag is MessageModel message)
-        //    {
-        //        var result = MessageBox.Show("Удалить сообщение?", "Подтверждение",
-        //            MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-        //        if (result == MessageBoxResult.Yes)
-        //        {
-        //            try
-        //            {
-        //                // Отправляем запрос на сервер
-        //                await _chatClient.DeleteMessageAsync(message.Id);
-
-        //                // Удаляем из UI
-        //                Messages.Remove(message);
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                MessageBox.Show($"Ошибка удаления: {ex.Message}", "Ошибка",
-        //                    MessageBoxButton.OK, MessageBoxImage.Error);
-        //            }
-        //        }
-        //    }
-        //}
+       
         private async void LoadMessageHistory()
         {
             try
@@ -1030,49 +730,7 @@ namespace WpfApp1.Views
             }
         }
 
-        //private async void SendButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    string messageText = MessageTextBox.Text?.Trim();
-
-        //    if (string.IsNullOrWhiteSpace(messageText))
-        //        return;
-
-
-        //    string avatarBase64 = null;
-        //    if (CurrentUser?.AvatarBytes != null && CurrentUser.AvatarBytes.Length > 0)
-        //    {
-        //        avatarBase64 = Convert.ToBase64String(CurrentUser.AvatarBytes);
-        //    }
-        //    var tempId = Guid.NewGuid();
-        //    var myMessage = new MessageModel
-        //    {
-        //        Id = tempId,
-        //        Username = _userName,
-        //        Message = messageText,
-        //        Time = DateTime.Now.ToString("HH:mm"),
-        //        IsMine = true,
-        //        Sender = CurrentUser,
-        //        SenderAvatarBytes = CurrentUser?.AvatarBytes
-        //    };
-
-        //    Messages.Add(myMessage);
-
-        //    if (MessagesList.Items.Count > 0)
-        //        MessagesList.ScrollIntoView(MessagesList.Items[MessagesList.Items.Count - 1]);
-
-        //    MessageTextBox.Clear();
-
-        //    try
-        //    {
-        //        await _chatClient.SendMessageAsync(_userId, messageText);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show($"Ошибка отправки: {ex.Message}", "Ошибка",
-        //            MessageBoxButton.OK, MessageBoxImage.Error);
-        //        Messages.Remove(myMessage);
-        //    }
-        //}
+       
 
         private async void SendButton_Click(object sender, RoutedEventArgs e)
         {
@@ -1081,7 +739,7 @@ namespace WpfApp1.Views
             if (string.IsNullOrWhiteSpace(messageText))
                 return;
 
-            // Создаем временное сообщение
+           
             var tempId = Guid.NewGuid();
             var myMessage = new MessageModel
             {
@@ -1104,56 +762,18 @@ namespace WpfApp1.Views
             try
             {
                 await _chatClient.SendMessageAsync(_userId, messageText);
-                // Реальный ID придет в MessageAdded или MessageReceived
+                
             }
             catch (Exception ex)
             {
-                // Ошибка отправки - удаляем временное сообщение
+              
                 Messages.Remove(myMessage);
                 MessageBox.Show($"Ошибка отправки: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        //private async void SendButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    string messageText = MessageTextBox.Text?.Trim();
-
-        //    if (string.IsNullOrWhiteSpace(messageText))
-        //        return;
-
-        //    // ✅ Добавляем сообщение в UI сразу
-        //    var tempId = Guid.NewGuid();
-        //    var myMessage = new MessageModel
-        //    {
-        //        Id = tempId,
-        //        Username = _userName,
-        //        Message = messageText,
-        //        Time = DateTime.Now.ToString("HH:mm"),
-        //        IsMine = true,
-        //        Sender = CurrentUser,
-        //        SenderAvatarBytes = CurrentUser?.AvatarBytes
-        //    };
-
-        //    Messages.Add(myMessage);
-
-        //    if (MessagesList.Items.Count > 0)
-        //        MessagesList.ScrollIntoView(MessagesList.Items[MessagesList.Items.Count - 1]);
-
-        //    MessageTextBox.Clear();
-
-        //    try
-        //    {
-        //        await _chatClient.SendMessageAsync(_userId, messageText);
-        //        // MessageAdded придет с реальным Id и обновит его
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show($"Ошибка отправки: {ex.Message}", "Ошибка",
-        //            MessageBoxButton.OK, MessageBoxImage.Error);
-        //        Messages.Remove(myMessage);
-        //    }
-        //}
+      
 
         private void SetupTimers()
         {
@@ -1294,26 +914,7 @@ namespace WpfApp1.Views
             MessagesList?.Items.Refresh();
         }
 
-        //private void ProfileButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    try
-        //    {
-        //        if (CurrentUser != null)
-        //        {
-        //            var profileWindow = new ProfileWindow(CurrentUser, _chatClient,_userLogin);
-        //            profileWindow.Owner = this;
-        //            profileWindow.ShowDialog();
-
-        //            UsersList?.Items.Refresh();
-        //            MessagesList?.Items.Refresh();
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show($"Ошибка при открытии профиля: {ex.Message}",
-        //            "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-        //    }
-        //}
+      
 
         private void UsersList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {

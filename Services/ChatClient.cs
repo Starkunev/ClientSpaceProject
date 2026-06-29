@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -318,42 +317,10 @@ namespace WpfApp1
                 return new Packet();
             }
         }
-        //public async Task<Packet> ReceivePacketAsync()
-        //{
-        //    if (_stream == null || !_client.Connected)
-        //        return null;
-
-        //    byte[] lengthBuffer = new byte[4];
-
-        //    int bytesRead = await _stream.ReadAsync(lengthBuffer, 0, 4);
-
-        //    if (bytesRead == 0)
-        //        return new Packet();
-
-        //    int dataLength = BitConverter.ToInt32(lengthBuffer, 0);
-
-        //    byte[] dataBuffer = new byte[dataLength];
-
-        //    int totalRead = 0;
-
-        //    while (totalRead < dataLength)
-        //    {
-        //        int currentRead = await _stream.ReadAsync(dataBuffer, totalRead, dataLength - totalRead);
-
-        //        if (currentRead == 0)
-        //            return null;
-
-        //        totalRead += currentRead;
-        //    }
-
-        //    string json = Encoding.UTF8.GetString(dataBuffer);
-
-        //    return JsonSerializer.Deserialize<Packet>(json, _jsonOptions);
-        //}
-
+        
         public async Task GetAllClientsAsync()
         {
-            // Создаем пустой JsonElement
+            
             JsonDocument doc = JsonDocument.Parse("{}");
 
             var packet = new Packet
@@ -365,24 +332,11 @@ namespace WpfApp1
             await SendPacketAsync(packet);
         }
 
-        // ЕДИНСТВЕННЫЙ МЕТОД UpdateClientAsync - УДАЛИТЕ ДУБЛИКАТ
-        //public async Task UpdateClientAsync(UpdateClientRequest request)
-        //{
-        //    string json = JsonSerializer.Serialize(request, _jsonOptions);
-        //    JsonDocument doc = JsonDocument.Parse(json);
-
-        //    Packet packet = new Packet
-        //    {
-        //        Type = PacketType.UpdateClient,
-        //        Data = doc.RootElement.Clone()
-        //    };
-
-        //    await SendPacketAsync(packet);
-        //}
+        
 
         public async Task UpdateClientAsync(UpdateClientRequest request)
         {
-            // ОТЛАДКА - ПРОВЕРЯЕМ ЧТО ПРИХОДИТ
+            
             System.Diagnostics.Debug.WriteLine($"=== ChatClient.UpdateClientAsync ===");
             System.Diagnostics.Debug.WriteLine($"Name: '{request.Name}'");
             System.Diagnostics.Debug.WriteLine($"Login: '{request.Login}'");
@@ -392,7 +346,7 @@ namespace WpfApp1
             System.Diagnostics.Debug.WriteLine($"Password empty: {string.IsNullOrEmpty(request.PasswordHash)}");
             System.Diagnostics.Debug.WriteLine($"Avatar: {(request.Avatar == null ? "null" : $"{request.Avatar.Length} bytes")}");
 
-            // Сериализуем request отдельно и смотрим JSON
+           
             var requestJson = JsonSerializer.Serialize(request, _jsonOptions);
             System.Diagnostics.Debug.WriteLine($"Request JSON: {requestJson}");
 
@@ -402,10 +356,10 @@ namespace WpfApp1
                 Data = JsonSerializer.SerializeToElement(request, _jsonOptions)
             };
 
-            // Проверяем Data
+           
             System.Diagnostics.Debug.WriteLine($"Data JSON: {packet.Data.GetRawText()}");
 
-            // Проверяем полный пакет
+           
             var fullJson = JsonSerializer.Serialize(packet, _jsonOptions);
             System.Diagnostics.Debug.WriteLine($"Full packet JSON (первые 500 символов):");
             System.Diagnostics.Debug.WriteLine(fullJson.Substring(0, Math.Min(500, fullJson.Length)));

@@ -135,7 +135,7 @@ namespace WpfApp1
         {
             lblStatus.Text = message;
             HighlightError(control);
-            //HighlightError(control);
+           
         }
 
         private void HighlightError(Control control)
