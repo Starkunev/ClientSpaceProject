@@ -1,7 +1,10 @@
-﻿namespace SpaceTcpChat.Models
+﻿using System;
+
+namespace SpaceTcpChat.Models
 {
     public class MessageModel
     {
+        public Guid Id { get; set; }
         public string Username { get; set; }
         public string Message { get; set; }
         public string Time { get; set; }

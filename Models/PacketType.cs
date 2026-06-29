@@ -17,6 +17,7 @@
         ClientUpdated,
         ClientList,
         ClientDeleted,
+        DeleteMessage,
         MessageDeleted
     }
 }

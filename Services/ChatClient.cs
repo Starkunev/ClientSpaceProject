@@ -226,7 +226,7 @@ namespace WpfApp1
             }
         }
 
-        //-------------------------- Методы для отправки и получения сообщений -----------------------------------------
+        //-------------------------- Методы для отправки(удаления) и получения сообщений -----------------------------------------
 
         public async Task SendMessageAsync(Guid ClientId, string text)
         {
@@ -258,7 +258,16 @@ namespace WpfApp1
             await SendPacketAsync(packet);
         }
 
+        public async Task DeleteMessageAsync(Guid messageId)
+        {
+            var packet = new Packet
+            {
+                Type = PacketType.DeleteMessage,
+                Data = JsonSerializer.SerializeToElement(messageId, _jsonOptions)
+            };
 
+            await SendPacketAsync(packet);
+        }
         public async Task<Packet> ReceivePacketAsync()
         {
             if (_stream == null || !_client.Connected)
