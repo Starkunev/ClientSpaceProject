@@ -140,7 +140,7 @@ namespace WpfApp1
 
                 int dataLength = BitConverter.ToInt32(lengthBuffer, 0);
 
-                if (dataLength <= 0 || dataLength > 65536)
+                if (dataLength <= 0 || dataLength > 1048576)
                 {
                     return new AuthResponse
                     {
