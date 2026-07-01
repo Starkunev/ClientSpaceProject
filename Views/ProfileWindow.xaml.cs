@@ -131,6 +131,85 @@ namespace WpfApp1.Views
             }
         }
 
+
+        private async void ChangePassword_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+               
+                ChangePasswordButton.IsEnabled = false;
+                ChangePasswordButton.Content = "Ожидание...";
+
+                string newPassword = NewPasswordBox.Password;
+                string confirmPassword = ConfirmPasswordBox.Password;
+
+               
+                if (string.IsNullOrEmpty(newPassword))
+                {
+                    MessageBox.Show("Введите новый пароль", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    NewPasswordBox.Focus();
+                    return;
+                }
+
+                if (newPassword.Length < 6)
+                {
+                    MessageBox.Show("Пароль должен содержать минимум 6 символов", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    NewPasswordBox.Focus();
+                    return;
+                }
+
+                if (newPassword != confirmPassword)
+                {
+                    MessageBox.Show("Пароли не совпадают", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ConfirmPasswordBox.Focus();
+                    return;
+                }
+
+              
+                if (_chatClient == null || !_chatClient.IsConnected())
+                {
+                    MessageBox.Show("Нет соединения с сервером", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+               
+                var result = await _chatClient.ChangePasswordAsync(newPassword);
+
+                if (result.Success)
+                {
+                    MessageBox.Show("Пароль успешно изменен!", "Успех",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+
+                   
+                    NewPasswordBox.Password = "";
+                    ConfirmPasswordBox.Password = "";
+
+                   
+                    _userPassword = newPassword;
+                }
+                else
+                {
+                    MessageBox.Show($"Ошибка смены пароля: {result.Message}", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+               
+                ChangePasswordButton.IsEnabled = true;
+                ChangePasswordButton.Content = "СМЕНИТЬ ПАРОЛЬ";
+            }
+        }
+
         private void ChangeAvatar_Click(object sender, RoutedEventArgs e)
         {
             try

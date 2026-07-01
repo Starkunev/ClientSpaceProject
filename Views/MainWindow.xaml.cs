@@ -166,6 +166,7 @@ namespace WpfApp1.Views
 
                     if (packet == null)
                         continue;
+                    _chatClient.RaisePacketReceived(packet);
 
                     await Dispatcher.InvokeAsync(() => ProcessPacket(packet));
                 }
@@ -314,6 +315,38 @@ namespace WpfApp1.Views
                             break;
                         }
 
+                    case PacketType.ClientPasswordChanged:
+                        {
+                            System.Diagnostics.Debug.WriteLine($"=== Получен ClientPasswordChanged ===");
+                            System.Diagnostics.Debug.WriteLine($"Raw Data: {packet.Data.GetRawText()}");
+
+                            try
+                            {
+                                var response = packet.Data.Deserialize<BaseResponse>();
+                                if (response != null)
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"Password change result: Success={response.Success}, Message={response.Message}");
+
+                                    // Можно показать уведомление в UI
+                                    Dispatcher.Invoke(() =>
+                                    {
+                                        // Добавляем системное сообщение в чат (опционально)
+                                        // Messages.Add(new MessageModel
+                                        // {
+                                        //     Username = "🔒 Система",
+                                        //     Message = response.Success ? "Пароль успешно изменен" : $"Ошибка: {response.Message}",
+                                        //     Time = DateTime.Now.ToString("HH:mm"),
+                                        //     IsMine = false
+                                        // });
+                                    });
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"ClientPasswordChanged error: {ex.Message}");
+                            }
+                            break;
+                        }
                     case PacketType.ClientList:
                         {
                             var clients = packet.Data.Deserialize<List<ClientResponse>>();
@@ -892,7 +925,18 @@ namespace WpfApp1.Views
             user.IsOnline = true;
             user.AvatarBytes = updated.AvatarBytes;
 
+            foreach (var msg in Messages)
+            {
+                if (msg.Sender?.Id == user.Id)
+                {
+                    msg.Username = user.Username;
+                    msg.Sender = user;
+                    msg.SenderAvatarBytes = user.AvatarBytes;
+                }
+            }
+
             UsersList?.Items.Refresh();
+            MessagesList?.Items.Refresh();
 
             if (updated.Id == CurrentUser?.Id)
             {

@@ -89,6 +89,7 @@
     <Compile Include="Converters\ByteArrayToImageConverter.cs" />
     <Compile Include="Models\AuthResponse.cs" />
     <Compile Include="Models\BaseResponse.cs" />
+    <Compile Include="Models\ChangePasswordRequest.cs" />
     <Compile Include="Models\ClientResponse.cs" />
     <Compile Include="Models\ClientStatusResponse.cs" />
     <Compile Include="Models\LoginRequest.cs" />

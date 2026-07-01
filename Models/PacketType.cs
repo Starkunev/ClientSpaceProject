@@ -18,6 +18,8 @@
         ClientList,
         ClientDeleted,
         DeleteMessage,
-        MessageDeleted
+        MessageDeleted,
+        ChangeClientPassword,
+        ClientPasswordChanged
     }
 }
