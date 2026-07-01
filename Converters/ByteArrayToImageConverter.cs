@@ -8,6 +8,7 @@ namespace WpfApp1.Converters
 {
     public class ByteArrayToImageConverter : IValueConverter
     {
+        private static readonly BitmapImage DefaultAvatar = new BitmapImage(new Uri("pack://application:,,,/Images/default_avatar.png"));
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is byte[] bytes && bytes.Length > 0)
@@ -26,10 +27,10 @@ namespace WpfApp1.Converters
                 }
                 catch
                 {
-                    return null;
+                    return DefaultAvatar;
                 }
             }
-            return null;
+            return DefaultAvatar;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

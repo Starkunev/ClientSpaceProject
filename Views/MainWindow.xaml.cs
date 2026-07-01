@@ -437,7 +437,7 @@ namespace WpfApp1.Views
                                         if (loggedClient.Id == _userId && loggedClient.Avatar != null && loggedClient.Avatar.Length > 0)
                                         {
                                             CurrentUser.AvatarBytes = loggedClient.Avatar;
-                                            System.Diagnostics.Debug.WriteLine($"✅ Аватар текущего пользователя обновлен: {loggedClient.Avatar.Length} байт");
+                                            System.Diagnostics.Debug.WriteLine($"Аватар текущего пользователя обновлен: {loggedClient.Avatar.Length} байт");
                                         }
 
                                         UpdateClientInUI(loggedClient);
@@ -485,7 +485,7 @@ namespace WpfApp1.Views
                                         }
                                         else
                                         {
-                                            System.Diagnostics.Debug.WriteLine("ERROR: Не удалось десериализовать clientProfileResponse");
+                                            System.Diagnostics.Debug.WriteLine("Ошибка: Не удалось десериализовать clientProfileResponse");
                                         }
                                     }
                                 }
@@ -500,13 +500,13 @@ namespace WpfApp1.Views
                                     }
                                     else
                                     {
-                                        System.Diagnostics.Debug.WriteLine("ERROR: Не удалось десериализовать ClientUpdated");
+                                        System.Diagnostics.Debug.WriteLine("Ошибка: Не удалось десериализовать ClientUpdated");
                                     }
                                 }
                             }
                             catch (Exception ex)
                             {
-                                System.Diagnostics.Debug.WriteLine($"ClientUpdated deserialize error: {ex.Message}");
+                                System.Diagnostics.Debug.WriteLine($"Ошибка десериализации: {ex.Message}");
                             }
                             break;
                         }
@@ -514,7 +514,7 @@ namespace WpfApp1.Views
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"ProcessPacket error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка: {ex.Message}");
             }
         }
 
@@ -544,7 +544,7 @@ namespace WpfApp1.Views
                 {
                     CurrentUser.AvatarBytes = client.Avatar;
                     CurrentUser.Username = client.Name;
-                    System.Diagnostics.Debug.WriteLine($"✅ Аватар текущего пользователя из ClientList: {(client.Avatar?.Length ?? 0)} байт");
+                    System.Diagnostics.Debug.WriteLine($" Аватар текущего пользователя из ClientList: {(client.Avatar?.Length ?? 0)} байт");
                 }
             }
 
@@ -608,7 +608,7 @@ namespace WpfApp1.Views
                 {
                     CurrentUser.AvatarBytes = user.AvatarBytes;
                     CurrentUser.Username = user.Username;
-                    System.Diagnostics.Debug.WriteLine($"✅ CurrentUser обновлен");
+                    System.Diagnostics.Debug.WriteLine($"CurrentUser обновлен");
                 }
 
                
