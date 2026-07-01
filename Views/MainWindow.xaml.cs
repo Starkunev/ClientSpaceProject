@@ -327,17 +327,10 @@ namespace WpfApp1.Views
                                 {
                                     System.Diagnostics.Debug.WriteLine($"Password change result: Success={response.Success}, Message={response.Message}");
 
-                                    // Можно показать уведомление в UI
+                                   
                                     Dispatcher.Invoke(() =>
                                     {
-                                        // Добавляем системное сообщение в чат (опционально)
-                                        // Messages.Add(new MessageModel
-                                        // {
-                                        //     Username = "🔒 Система",
-                                        //     Message = response.Success ? "Пароль успешно изменен" : $"Ошибка: {response.Message}",
-                                        //     Time = DateTime.Now.ToString("HH:mm"),
-                                        //     IsMine = false
-                                        // });
+                                        
                                     });
                                 }
                             }
@@ -436,7 +429,11 @@ namespace WpfApp1.Views
                                         System.Diagnostics.Debug.WriteLine($"CurrentUserId={_userId}, Совпадает: {loggedClient.Id == _userId}");
                                         System.Diagnostics.Debug.WriteLine($"Avatar null: {loggedClient.Avatar == null}, Length: {loggedClient.Avatar?.Length ?? 0}");
 
-                                       
+                                        if (loggedClient.Id == _userId)
+                                        {
+                                            UpdateCurrentUser(loggedClient.Name, loggedClient.Avatar);
+                                        }
+                                        
                                         if (loggedClient.Id == _userId && loggedClient.Avatar != null && loggedClient.Avatar.Length > 0)
                                         {
                                             CurrentUser.AvatarBytes = loggedClient.Avatar;
@@ -587,7 +584,7 @@ namespace WpfApp1.Views
         }
 
 
-       
+
         private void UpdateClientInUI(ClientResponse client)
         {
             System.Diagnostics.Debug.WriteLine($"=== UpdateClientInUI ===");
@@ -607,7 +604,6 @@ namespace WpfApp1.Views
                     System.Diagnostics.Debug.WriteLine($"Аватар обновлен: {client.Avatar.Length} байт");
                 }
 
-               
                 if (client.Id == _userId)
                 {
                     CurrentUser.AvatarBytes = user.AvatarBytes;
@@ -615,7 +611,19 @@ namespace WpfApp1.Views
                     System.Diagnostics.Debug.WriteLine($"✅ CurrentUser обновлен");
                 }
 
+               
+                foreach (var msg in Messages)
+                {
+                    if (msg.Sender?.Id == user.Id)
+                    {
+                        msg.Sender = user;
+                        msg.Username = user.Username;  
+                        msg.SenderAvatarBytes = user.AvatarBytes;
+                    }
+                }
+
                 UsersList?.Items.Refresh();
+                MessagesList?.Items.Refresh();
                 RefreshMessagesAvatars();
             }
             else
@@ -623,7 +631,7 @@ namespace WpfApp1.Views
                 System.Diagnostics.Debug.WriteLine($"Пользователь с Id={client.Id} НЕ НАЙДЕН в списке UI");
             }
         }
-        
+
 
         private void AddMessageToUI(MessageResponse message)
         {
@@ -668,11 +676,12 @@ namespace WpfApp1.Views
             var messageModel = new MessageModel
             {
                 Id = message.Id,
-                Username = message.SenderName,
+                Sender = sender,
+                Username= sender.Username,
                 Message = message.Text,
                 Time = message.CreatedAt.ToLocalTime().ToString("HH:mm"),
                 IsMine = message.FromClientId == _userId,
-                Sender = sender,
+                
                 SenderAvatarBytes = sender?.AvatarBytes
             };
 
@@ -682,7 +691,24 @@ namespace WpfApp1.Views
                 MessagesList.ScrollIntoView(MessagesList.Items[MessagesList.Items.Count - 1]);
         }
 
-       
+        public void UpdateCurrentUser(string newName, byte[] newAvatar = null)
+        {
+            if (CurrentUser == null) return;
+            CurrentUser.Username = newName;
+            if (newAvatar != null && newAvatar.Length > 0) CurrentUser.AvatarBytes = newAvatar;
+
+            var user = Users.FirstOrDefault(u => u.Id == _userId);
+            if (user != null) { user.Username = newName; if (newAvatar != null && newAvatar.Length > 0) user.AvatarBytes = newAvatar; }
+
+            foreach (var msg in Messages.Where(m => m.Sender?.Id == _userId))
+            {
+                msg.Username = newName;
+                if (newAvatar != null && newAvatar.Length > 0) msg.SenderAvatarBytes = newAvatar;
+            }
+
+            UsersList?.Items.Refresh();
+            MessagesList?.Items.Refresh();
+        }
 
         private void LoadMessageHistory(List<MessageResponse> messages)
         {
@@ -701,11 +727,12 @@ namespace WpfApp1.Views
 
                 Messages.Add(new MessageModel
                 {
-                    Username = msg.SenderName,
+                    Sender = sender,
                     Message = msg.Text,
+                    Username = sender.Username,
                     Time = msg.CreatedAt.ToLocalTime().ToString("HH:mm"),
                     IsMine = msg.FromClientId == _userId,
-                    Sender = sender ?? new UserModel { Id = msg.FromClientId, Username = msg.SenderName },
+                   
                     SenderAvatarBytes = sender?.AvatarBytes
                 });
             }
@@ -763,8 +790,9 @@ namespace WpfApp1.Views
             }
         }
 
-       
 
+
+        
         private async void SendButton_Click(object sender, RoutedEventArgs e)
         {
             string messageText = MessageTextBox.Text?.Trim();
@@ -772,16 +800,15 @@ namespace WpfApp1.Views
             if (string.IsNullOrWhiteSpace(messageText))
                 return;
 
-           
             var tempId = Guid.NewGuid();
             var myMessage = new MessageModel
             {
                 Id = tempId,
-                Username = _userName,
+                Sender = CurrentUser,
+                Username = CurrentUser?.Username ?? _userName,  
                 Message = messageText,
                 Time = DateTime.Now.ToString("HH:mm"),
                 IsMine = true,
-                Sender = CurrentUser,
                 SenderAvatarBytes = CurrentUser?.AvatarBytes
             };
 
@@ -795,18 +822,16 @@ namespace WpfApp1.Views
             try
             {
                 await _chatClient.SendMessageAsync(_userId, messageText);
-                
             }
             catch (Exception ex)
             {
-              
                 Messages.Remove(myMessage);
                 MessageBox.Show($"Ошибка отправки: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-      
+
 
         private void SetupTimers()
         {
@@ -861,11 +886,12 @@ namespace WpfApp1.Views
 
                 Messages.Add(new MessageModel
                 {
+                    Sender = CurrentUser,
                     Username = CurrentUser?.Username ?? _userName,
                     Message = "📎 Файл",
                     FilePath = dlg.FileName,
                     IsMine = true,
-                    Sender = CurrentUser,
+                   
                     Time = DateTime.Now.ToShortTimeString(),
                     SenderAvatarBytes = CurrentUser?.AvatarBytes
                 });
@@ -911,6 +937,7 @@ namespace WpfApp1.Views
             }
         }
 
+     
         public void SyncUser(UserModel updated)
         {
             var user = Users.FirstOrDefault(u => u.Id == updated.Id);
@@ -925,12 +952,13 @@ namespace WpfApp1.Views
             user.IsOnline = true;
             user.AvatarBytes = updated.AvatarBytes;
 
+  
             foreach (var msg in Messages)
             {
                 if (msg.Sender?.Id == user.Id)
                 {
-                    msg.Username = user.Username;
                     msg.Sender = user;
+                    msg.Username = user.Username;
                     msg.SenderAvatarBytes = user.AvatarBytes;
                 }
             }
@@ -943,6 +971,7 @@ namespace WpfApp1.Views
                 CurrentUser = user;
                 ApplyTheme(user.Theme);
                 RefreshMessagesAvatars();
+               
             }
         }
 
